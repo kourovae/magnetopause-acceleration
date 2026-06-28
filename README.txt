@@ -52,4 +52,4 @@ MIT License
 
 If you use this code, please cite:
 
-Kourova E.A., Dmitriev A.V., Mishin V.V. (2026). Code for magnetopause acceleration calculation and figure generation [Software]. Zenodo. https://doi.org/ВАШ_DOI_КОДА
+Kourova E.A., Dmitriev A.V., Mishin V.V. (2026). Code for magnetopause acceleration calculation and figure generation [Software]. Zenodo. https://doi.org/10.5281/zenodo.20999491
