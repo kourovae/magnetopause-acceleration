@@ -16,7 +16,7 @@ from geopack import geopack
 
 def calculate_ps_angle_direct(date_str, time_str):
     """
-    Calculate the dipole tilt angle (PS) using Geopack recalc.
+    Calculates the dipole tilt angle (PS) using Geopack recalc.
     
     Parameters:
     date_str : str
@@ -46,7 +46,7 @@ def calculate_ps_angle_direct(date_str, time_str):
 # ============================================================
 
 def cartesian_to_spherical_gsm(x, y, z):
-    """Convert GSM Cartesian coordinates to spherical coordinates."""
+    """Converts GSM Cartesian coordinates to spherical coordinates."""
     r = np.sqrt(x**2 + y**2 + z**2)
     if r == 0:
         return 0.0, 0.0, 0.0
@@ -59,7 +59,7 @@ def cartesian_to_spherical_gsm(x, y, z):
     return r, lat, lon
 
 def spherical_to_cartesian_gsm(r, lat, lon):
-    """Convert spherical coordinates to GSM Cartesian coordinates."""
+    """Converts spherical coordinates to GSM Cartesian coordinates."""
     lat_rad, lon_rad = np.radians(lat), np.radians(lon)
     x = r * np.cos(lat_rad) * np.cos(lon_rad)
     y = r * np.cos(lat_rad) * np.sin(lon_rad)
@@ -183,7 +183,7 @@ def lin2010_model(Bz, Btot, Pd, vLat, vLon, PS):
 
 def find_pressure_for_satellite(x, y, z, Bz=0.0, Btot=5.0, PS=0.0):
     """
-    Find the solar wind dynamic pressure Pd such that the model
+    Finds the solar wind dynamic pressure Pd such that the model
     magnetopause passes through the satellite position.
     """
     r, lat, lon = cartesian_to_spherical_gsm(x, y, z)
@@ -212,7 +212,7 @@ def find_pressure_for_satellite(x, y, z, Bz=0.0, Btot=5.0, PS=0.0):
 
 def compute_normal_direct(lat, lon, Pd, Bz, Btot, PS, delta=0.001):
     """
-    Compute the outward normal to the magnetopause using finite differences.
+    Computes the outward normal to the magnetopause using finite differences.
     """
     r0 = lin2010_model(Bz, Btot, Pd, lat, lon, PS)
     point0 = spherical_to_cartesian_gsm(r0, lat, lon)
@@ -242,28 +242,7 @@ def compute_normal_direct(lat, lon, Pd, Bz, Btot, PS, delta=0.001):
         normal_gsm = -normal_gsm
     
     return normal_gsm
-
-def spherical_normal_to_gsm(normal_sph, lat, lon):
-    """
-    Convert spherical normal vector to GSM Cartesian coordinates.
-    """
-    lat_rad, lon_rad = np.radians(lat), np.radians(lon)
-    theta = np.pi / 2.0 - lat_rad
     
-    T = np.array([
-        [np.sin(theta) * np.cos(lon_rad), np.cos(theta) * np.cos(lon_rad), -np.sin(lon_rad)],
-        [np.sin(theta) * np.sin(lon_rad), np.cos(theta) * np.sin(lon_rad), np.cos(lon_rad)],
-        [np.cos(theta), -np.sin(theta), 0]
-    ])
-    
-    normal_gsm = T @ normal_sph
-    norm = np.linalg.norm(normal_gsm)
-    
-    if norm == 0:
-        return np.array([1.0, 0.0, 0.0])
-    
-    return normal_gsm / norm
-
 # ============================================================
 # Intersection search along normal
 # ============================================================
@@ -271,7 +250,7 @@ def spherical_normal_to_gsm(normal_sph, lat, lon):
 def find_intersection_along_normal(start_point, normal_gsm, Pd, Bz, Btot, PS,
                                    max_distance=10.0, step=0.01):
     """
-    Find the intersection of the normal line with the magnetopause
+    Finds the intersection of the normal line with the magnetopause
     for a given solar wind dynamic pressure Pd.
     """
     directions = [1.0, -1.0]
@@ -302,7 +281,7 @@ def find_intersection_along_normal(start_point, normal_gsm, Pd, Bz, Btot, PS,
 def calculate_mp_velocity_compression(sat_outer_coords, sat_inner_coords,
                                       t_outer, t_inner, Bz=0.0, Btot=5.0, PS=0.0):
     """
-    Calculate magnetopause velocity during compression (inward motion).
+    Calculates magnetopause velocity during compression (inward motion).
     """
     print("=" * 70)
     print("MAGNETOPAUSE COMPRESSION")
@@ -324,8 +303,7 @@ def calculate_mp_velocity_compression(sat_outer_coords, sat_inner_coords,
     S_outer = np.array(sat_outer_coords)
     S_inner = np.array(sat_inner_coords)
     
-    normal_sph = compute_normal_direct(lat_outer, lon_outer, Pd_outer, Bz, Btot, PS)
-    normal_gsm = spherical_normal_to_gsm(normal_sph, lat_outer, lon_outer)
+    normal_gsm = compute_normal_direct(lat_outer, lon_outer, Pd_outer, Bz, Btot, PS)
     
     intersection_mp2, distance_to_mp2 = find_intersection_along_normal(
         S_outer, normal_gsm, Pd_inner, Bz, Btot, PS)
@@ -347,7 +325,7 @@ def calculate_mp_velocity_compression(sat_outer_coords, sat_inner_coords,
     print(f"  Travel distance: {mp_travel_distance:.3f} Re")
     print(f"  Time interval: {dt:.1f} s")
     print(f"  Velocity: {v_normal:.4f} Re/s = {v_normal_kms:.2f} km/s")
-    print(f"  Direction: inward (toward Earth)")
+    print(f"  Direction: inward (toward the Earth)")
     
     return {
         'v_normal_re_s': v_normal,
@@ -366,7 +344,7 @@ def calculate_mp_velocity_compression(sat_outer_coords, sat_inner_coords,
 def calculate_mp_velocity_expansion(sat_inner_coords, sat_outer_coords,
                                     t_inner, t_outer, Bz=0.0, Btot=5.0, PS=0.0):
     """
-    Calculate magnetopause velocity during expansion (outward motion).
+    Calculates magnetopause velocity during expansion (outward motion).
     """
     print("=" * 70)
     print("MAGNETOPAUSE EXPANSION")
@@ -388,8 +366,7 @@ def calculate_mp_velocity_expansion(sat_inner_coords, sat_outer_coords,
     S_inner = np.array(sat_inner_coords)
     S_outer = np.array(sat_outer_coords)
     
-    normal_sph = compute_normal_direct(lat_inner, lon_inner, Pd_inner, Bz, Btot, PS)
-    normal_gsm = spherical_normal_to_gsm(normal_sph, lat_inner, lon_inner)
+    normal_gsm = compute_normal_direct(lat_inner, lon_inner, Pd_inner, Bz, Btot, PS)
     
     intersection_mp2, distance_to_mp2 = find_intersection_along_normal(
         S_inner, normal_gsm, Pd_outer, Bz, Btot, PS)
@@ -434,7 +411,7 @@ def calculate_mp_velocity_expansion(sat_inner_coords, sat_outer_coords,
 
 def calculate_mp_acceleration_three_satellites(satellite_data_list, Bz, Btot, PS):
     """
-    Calculate magnetopause acceleration using three successive crossings.
+    Calculates magnetopause acceleration using three successive crossings.
     
     Parameters:
     satellite_data_list : list of tuples
@@ -513,13 +490,6 @@ def calculate_mp_acceleration_three_satellites(satellite_data_list, Bz, Btot, PS
     print(f"Time interval: {time_interval:.1f} s")
     print(f"Acceleration: {acceleration:.6f} km/s²")
     
-    if acceleration > 0.001:
-        print("✓ ACCELERATION")
-    elif acceleration < -0.001:
-        print("✓ DECELERATION")
-    else:
-        print("✓ CONSTANT VELOCITY")
-    
     return {
         'velocity1_km_s': v1,
         'velocity2_km_s': v2,
@@ -536,7 +506,7 @@ def calculate_mp_acceleration_three_satellites(satellite_data_list, Bz, Btot, PS
 # ============================================================
 
 if __name__ == "__main__":
-    # Example: calculate dipole tilt angle for a given date/time
+    # Example: calculates dipole tilt angle for a given date/time
     date = '2007-08-29'
     time = '15:40:00'
     PS = calculate_ps_angle_direct(date, time)
